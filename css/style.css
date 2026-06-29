@@ -705,31 +705,26 @@ footer{
   .col-hero-title span{writing-mode:horizontal-tb;transform:none;font-size:22px;}
 }
 
-/* ============ SCROLL-CONTROLLED VIDEO HERO ============ */
-.scroll-video-hero{
+/* ============ AUTOPLAY VIDEO HERO ============ */
+.video-hero{
   position:relative;
-  height:250vh;
-}
-.scroll-video-hero .video-pin{
-  position:sticky;
-  top:0;
   height:100vh;
   overflow:hidden;
   display:flex;
   align-items:center;
   justify-content:center;
 }
-.scroll-video-hero video{
+.video-hero video{
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
   object-fit:cover;
 }
-.scroll-video-hero .video-pin::after{
+.video-hero::after{
   content:'';
   position:absolute;inset:0;
-  background:linear-gradient(180deg, rgba(11,11,13,0.35) 0%, rgba(11,11,13,0.65) 100%);
+  background:linear-gradient(180deg, rgba(11,11,13,0.55) 0%, rgba(11,11,13,0.75) 100%);
 }
 .video-overlay-content{
   position:relative;
@@ -737,11 +732,7 @@ footer{
   text-align:center;
   max-width:680px;
   padding:0 24px;
-  opacity:0;
-  transform:translateY(16px);
-  transition:opacity 400ms ease-out, transform 400ms ease-out;
 }
-.video-overlay-content.in-view{opacity:1;transform:translateY(0);}
 .video-overlay-content .lead{
   font-size:19px;
   color:var(--silver-400);
@@ -753,20 +744,6 @@ footer{
   gap:18px;
   flex-wrap:wrap;
   justify-content:center;
-}
-
-/* full-bleed variant (menu page) */
-.scroll-video-hero.fullbleed{height:300vh;}
-.scroll-video-hero.fullbleed .video-pin{
-  width:100vw;
-  position:sticky;
-  left:50%;
-  margin-left:-50vw;
-}
-
-@media (max-width:900px){
-  .scroll-video-hero{height:160vh;}
-  .scroll-video-hero.fullbleed{height:180vh;}
 }
 
 /* ============ SOCIAL ICONS (header + footer) ============ */

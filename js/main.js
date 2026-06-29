@@ -209,42 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ---------- Scroll-controlled video hero ---------- */
-  document.querySelectorAll('.scroll-video-hero').forEach(section => {
-    const video = section.querySelector('video');
-    const overlay = section.querySelector('.video-overlay-content');
-    if (!video) return;
-
-    let duration = 0;
-    video.addEventListener('loadedmetadata', () => { duration = video.duration || 0; });
-
-    let ticking = false;
-    const update = () => {
-      ticking = false;
-      const rect = section.getBoundingClientRect();
-      const scrollable = rect.height - window.innerHeight;
-      if (scrollable <= 0) return;
-      const progress = Math.min(1, Math.max(0, -rect.top / scrollable));
-
-      if (duration) video.currentTime = progress * duration;
-
-      if (overlay) {
-        let opacity;
-        if (progress < 0.2) opacity = progress / 0.2;
-        else if (progress > 0.8) opacity = (1 - progress) / 0.2;
-        else opacity = 1;
-        overlay.style.opacity = opacity;
-        overlay.classList.toggle('in-view', opacity > 0.05);
-      }
-    };
-
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(update);
-      }
-    });
-    update();
+  /* ---------- Autoplay video hero ---------- */
+  document.querySelectorAll('.video-hero video').forEach(video => {
+    video.play().catch(() => {});
   });
 
   /* ---------- Sticky mobile CTA ---------- */

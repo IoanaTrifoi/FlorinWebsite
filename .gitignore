@@ -1,5 +1,6 @@
 info.md
 
-# Unused source videos (large, not referenced by any page) — only scroll_v2.mp4 is used
+# Unused source videos (large, not referenced by any page)
 assets/video/*
-!assets/video/scroll_v2.mp4
+!assets/video/party.mp4
+!assets/video/colorfull_cocktail.mp4
