@@ -87,31 +87,58 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ---------- Gallery filter ---------- */
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const galleryItems = document.querySelectorAll('.gallery-item');
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const filter = btn.dataset.filter;
-      galleryItems.forEach(item => {
-        const show = filter === 'all' || item.dataset.category === filter;
-        item.style.display = show ? '' : 'none';
+  /* ---------- Filterable groups (gallery + menu cocktails/packages) ---------- */
+  function setupFilterGroup(filterBtnsSel, itemsSel) {
+    const filterBtns = document.querySelectorAll(filterBtnsSel);
+    const items = document.querySelectorAll(itemsSel);
+    if (!filterBtns.length || !items.length) return { filterBtns, items };
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        items.forEach(item => {
+          const show = !filter || filter === 'all' || item.dataset.category === filter;
+          item.style.display = show ? '' : 'none';
+        });
       });
     });
-  });
+    return { filterBtns, items };
+  }
 
-  /* ---------- Lightbox ---------- */
+  const galleryGroup = setupFilterGroup('#gallery-filters .filter-btn', '.gallery-item');
+  setupFilterGroup('#menu-filters .filter-btn', '.cocktail-card, .package-card');
+  const galleryItems = galleryGroup.items || document.querySelectorAll('.gallery-item');
+
+  /* ---------- Lightbox (with prev/next navigation over visible items) ---------- */
   const lightbox = document.getElementById('lightbox');
   if (lightbox) {
     const lightboxContent = lightbox.querySelector('.ph');
+    let currentIndex = -1;
+
+    const visibleItems = () =>
+      Array.from(galleryItems).filter(item => item.style.display !== 'none');
+
+    const showAt = (index) => {
+      const visible = visibleItems();
+      if (!visible.length) return;
+      currentIndex = (index + visible.length) % visible.length;
+      lightboxContent.innerHTML = visible[currentIndex].querySelector('.ph').innerHTML;
+    };
+
     galleryItems.forEach(item => {
       item.addEventListener('click', () => {
-        lightboxContent.textContent = item.querySelector('.ph').textContent;
+        const visible = visibleItems();
+        showAt(visible.indexOf(item));
         lightbox.classList.add('open');
       });
     });
+
+    const prevBtn = lightbox.querySelector('.lightbox-prev');
+    const nextBtn = lightbox.querySelector('.lightbox-next');
+    if (prevBtn) prevBtn.addEventListener('click', () => showAt(currentIndex - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => showAt(currentIndex + 1));
+
     lightbox.querySelector('.lightbox-close').addEventListener('click', () =>
       lightbox.classList.remove('open')
     );
@@ -180,6 +207,44 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }
     });
+  });
+
+  /* ---------- Scroll-controlled video hero ---------- */
+  document.querySelectorAll('.scroll-video-hero').forEach(section => {
+    const video = section.querySelector('video');
+    const overlay = section.querySelector('.video-overlay-content');
+    if (!video) return;
+
+    let duration = 0;
+    video.addEventListener('loadedmetadata', () => { duration = video.duration || 0; });
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const rect = section.getBoundingClientRect();
+      const scrollable = rect.height - window.innerHeight;
+      if (scrollable <= 0) return;
+      const progress = Math.min(1, Math.max(0, -rect.top / scrollable));
+
+      if (duration) video.currentTime = progress * duration;
+
+      if (overlay) {
+        let opacity;
+        if (progress < 0.2) opacity = progress / 0.2;
+        else if (progress > 0.8) opacity = (1 - progress) / 0.2;
+        else opacity = 1;
+        overlay.style.opacity = opacity;
+        overlay.classList.toggle('in-view', opacity > 0.05);
+      }
+    };
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    });
+    update();
   });
 
   /* ---------- Sticky mobile CTA ---------- */
